@@ -1,4 +1,9 @@
-SELECT I.REST_ID, I.REST_NAME, I.FOOD_TYPE, I.FAVORITES, I.ADDRESS, R.SCORE
+SELECT I.REST_ID
+        ,I.REST_NAME
+        ,I.FOOD_TYPE
+        ,I.FAVORITES
+        ,I.ADDRESS
+        ,R.SCORE
 FROM REST_INFO I
 JOIN (
     SELECT REST_ID, ROUND(AVG(REVIEW_SCORE), 2) AS SCORE
@@ -8,3 +13,28 @@ JOIN (
 ON I.REST_ID = R.REST_ID
 WHERE I.ADDRESS LIKE '서울%'
 ORDER BY R.SCORE DESC, I.FAVORITES DESC
+
+** 다른 방법
+
+WITH REVIEW_SCORE AS (
+    SELECT REST_ID, CAST(AVG(REVIEW_SCORE) AS DECIMAL(5, 2)) AS SCORE
+    FROM REST_REVIEW
+    GROUP BY REST_ID
+)
+SELECT I.REST_ID, I.REST_NAME, I.FOOD_TYPE, I.FAVORITES, I.ADDRESS, R.SCORE
+FROM (SELECT * FROM REST_INFO WHERE ADDRESS LIKE '서울%') I
+JOIN REVIEW_SCORE R ON I.REST_ID = R.REST_ID
+ORDER BY R.SCORE DESC, I.FAVORITES DESC;
+
+**(❁´◡`❁) CAST , CONVERT
+
+사용할 수 있는 TYPE
+
+BINARY -- binary로 변환
+CHAR -- 문자열로 변환
+DATE -- yyyy-mm-dd의 날짜 형태로 변환
+DATETIME -- yyyy-mm-dd hh:mm:ss의 날짜 형태로 변환
+TIME -- hh:mm:ss의 시간 형태로 변환
+DECIMAL -- 최대 자릿수, 소수점 이하 자릿수로 지정하여 decimal로 변환
+SIGNED -- 숫자의 양수, 음수 전부 표현 가능한 값으로 변환
+UNSIGNED -- 숫자의 양수만 표현 가능한 값으로 변환
